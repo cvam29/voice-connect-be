@@ -1,0 +1,49 @@
+# Build results
+bin/
+obj/
+out/
+
+# Azure Functions artifacts
+bin/
+obj/
+
+# Local development settings
+local.settings.json
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# VS Code
+.vscode/
+
+# Visual Studio
+.vs/
+*.sln.docstates
+*.userprefs
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Azure Functions Core Tools
+.azurefunctions/

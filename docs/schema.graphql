@@ -1,0 +1,55 @@
+type Query {
+  hello: String!
+  users: [User!]!
+  user(id: ID!): User
+  topics: [Topic!]!
+  topic(id: ID!): Topic
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User!
+  updateUser(input: UpdateUserInput!): User
+  createTopic(input: CreateTopicInput!): Topic!
+  boostTopic(topicId: ID!): Topic
+}
+
+type User {
+  id: ID!
+  phoneNumber: String!
+  email: String
+  displayName: String!
+  profilePictureUrl: String
+  createdAt: DateTime!
+  lastActiveAt: DateTime!
+  isActive: Boolean!
+}
+
+type Topic {
+  id: ID!
+  title: String!
+  description: String!
+  createdBy: ID!
+  createdAt: DateTime!
+  boostCount: Int!
+  isActive: Boolean!
+}
+
+input CreateUserInput {
+  phoneNumber: String!
+  displayName: String!
+  email: String
+}
+
+input UpdateUserInput {
+  id: ID!
+  displayName: String
+  email: String
+  profilePictureUrl: String
+}
+
+input CreateTopicInput {
+  title: String!
+  description: String!
+}
+
+scalar DateTime

@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceConnectBE", "VoiceConnectBE.csproj", "{C7561DF9-F03E-4811-9513-5948910DD940}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceConnectBE.Tests", "VoiceConnectBE.Tests\VoiceConnectBE.Tests.csproj", "{D90F76F9-CFC5-4C5D-9AD6-9E1B95716B24}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7561DF9-F03E-4811-9513-5948910DD940}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7561DF9-F03E-4811-9513-5948910DD940}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7561DF9-F03E-4811-9513-5948910DD940}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7561DF9-F03E-4811-9513-5948910DD940}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D90F76F9-CFC5-4C5D-9AD6-9E1B95716B24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D90F76F9-CFC5-4C5D-9AD6-9E1B95716B24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D90F76F9-CFC5-4C5D-9AD6-9E1B95716B24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D90F76F9-CFC5-4C5D-9AD6-9E1B95716B24}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
