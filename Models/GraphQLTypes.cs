@@ -42,3 +42,31 @@ public class WebRtcSignal
     public string Type { get; set; } = string.Empty; // "offer", "answer", "ice-candidate"
     public object? Data { get; set; }
 }
+
+// Moderation input types
+public class CreateReportInput
+{
+    public ReportType Type { get; set; }
+    public string TargetId { get; set; } = string.Empty;
+    public string Reason { get; set; } = string.Empty;
+    public string? Description { get; set; }
+}
+
+public class BanUserInput
+{
+    public string UserId { get; set; } = string.Empty;
+    public string Reason { get; set; } = string.Empty;
+    public DateTime? BannedUntil { get; set; }
+}
+
+public class AssignModeratorInput
+{
+    public string UserId { get; set; } = string.Empty;
+}
+
+public class ResolveReportInput
+{
+    public string ReportId { get; set; } = string.Empty;
+    public string? ResolutionNotes { get; set; }
+    public ReportStatus Status { get; set; }
+}

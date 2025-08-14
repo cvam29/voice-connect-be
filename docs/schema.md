@@ -37,6 +37,48 @@ query GetUsers {
 }
 ```
 
+### getReports
+Get reports with optional status filter (for moderators).
+
+```graphql
+query GetReports($status: ReportStatus) {
+  reports(status: $status) {
+    id
+    type
+    targetId
+    reason
+    description
+    status
+    createdAt
+    reviewedAt
+    resolutionNotes
+    reporter {
+      id
+      username
+    }
+    reviewedByUser {
+      id
+      username
+    }
+  }
+}
+```
+
+### getModerators
+Get all users with moderator role.
+
+```graphql
+query GetModerators {
+  moderators {
+    id
+    username
+    bio
+    role
+    createdAt
+  }
+}
+```
+
 ## Mutation Operations
 
 ### register
@@ -176,6 +218,72 @@ mutation RejectCall($requestId: String!, $userId: String!) {
 }
 ```
 
+### createReport
+Create a report for content moderation.
+
+```graphql
+mutation CreateReport($reporterId: String!, $input: CreateReportInput!) {
+  createReport(reporterId: $reporterId, input: $input) {
+    id
+    type
+    targetId
+    reason
+    description
+    status
+    createdAt
+    reporter {
+      id
+      username
+    }
+  }
+}
+```
+
+### assignModerator
+Assign moderator role to a user (admin only).
+
+```graphql
+mutation AssignModerator($assignedBy: String!, $input: AssignModeratorInput!) {
+  assignModerator(assignedBy: $assignedBy, input: $input)
+}
+```
+
+### banUser
+Ban a user (moderator/admin only).
+
+```graphql
+mutation BanUser($moderatorId: String!, $input: BanUserInput!) {
+  banUser(moderatorId: $moderatorId, input: $input)
+}
+```
+
+### unbanUser
+Unban a user (moderator/admin only).
+
+```graphql
+mutation UnbanUser($moderatorId: String!, $userId: String!) {
+  unbanUser(moderatorId: $moderatorId, userId: $userId)
+}
+```
+
+### resolveReport
+Resolve a report (moderator/admin only).
+
+```graphql
+mutation ResolveReport($moderatorId: String!, $input: ResolveReportInput!) {
+  resolveReport(moderatorId: $moderatorId, input: $input) {
+    id
+    status
+    reviewedAt
+    resolutionNotes
+    reviewedByUser {
+      id
+      username
+    }
+  }
+}
+```
+
 ## Subscription Operations
 
 ### placeholder
@@ -200,6 +308,12 @@ type User {
   createdAt: DateTime!
   lastLoginAt: DateTime
   isActive: Boolean!
+  role: UserRole!
+  isBanned: Boolean!
+  bannedAt: DateTime
+  bannedUntil: DateTime
+  bannedBy: String
+  banReason: String
   favoriteUserIds: [String!]!
 }
 ```
@@ -247,6 +361,25 @@ type CallRequest {
 }
 ```
 
+### Report
+```graphql
+type Report {
+  id: ID!
+  reporterId: String!
+  type: ReportType!
+  targetId: String!
+  reason: String!
+  description: String
+  status: ReportStatus!
+  createdAt: DateTime!
+  reviewedAt: DateTime
+  reviewedBy: String
+  resolutionNotes: String
+  reporter: User
+  reviewedByUser: User
+}
+```
+
 ### AuthPayload
 ```graphql
 type AuthPayload {
@@ -264,5 +397,51 @@ enum CallRequestStatus {
   REJECTED
   CANCELLED
   EXPIRED
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum ReportType {
+  USER
+  TOPIC
+  MESSAGE
+}
+
+enum ReportStatus {
+  PENDING
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+```
+
+### Input Types
+
+```graphql
+input CreateReportInput {
+  type: ReportType!
+  targetId: String!
+  reason: String!
+  description: String
+}
+
+input BanUserInput {
+  userId: String!
+  reason: String!
+  bannedUntil: DateTime
+}
+
+input AssignModeratorInput {
+  userId: String!
+}
+
+input ResolveReportInput {
+  reportId: String!
+  resolutionNotes: String
+  status: ReportStatus!
 }
 ```

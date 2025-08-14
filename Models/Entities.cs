@@ -2,6 +2,28 @@ using System.ComponentModel.DataAnnotations;
 
 namespace VoiceConnect.Backend.Models;
 
+public enum UserRole
+{
+    User,
+    Moderator,
+    Admin
+}
+
+public enum ReportType
+{
+    User,
+    Topic,
+    Message
+}
+
+public enum ReportStatus
+{
+    Pending,
+    UnderReview,
+    Resolved,
+    Dismissed
+}
+
 public class User
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
@@ -21,6 +43,19 @@ public class User
     public DateTime? LastLoginAt { get; set; }
     
     public bool IsActive { get; set; } = true;
+    
+    // Role and moderation properties
+    public UserRole Role { get; set; } = UserRole.User;
+    
+    public bool IsBanned { get; set; } = false;
+    
+    public DateTime? BannedAt { get; set; }
+    
+    public DateTime? BannedUntil { get; set; }
+    
+    public string? BannedBy { get; set; }
+    
+    public string? BanReason { get; set; }
     
     // Navigation properties
     public List<string> FavoriteUserIds { get; set; } = new List<string>();
@@ -117,4 +152,37 @@ public class OtpCode
     public DateTime ExpiresAt { get; set; } = DateTime.UtcNow.AddMinutes(5);
     
     public bool IsUsed { get; set; } = false;
+}
+
+public class Report
+{
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    
+    [Required]
+    public string ReporterId { get; set; } = string.Empty;
+    
+    [Required]
+    public ReportType Type { get; set; }
+    
+    [Required]
+    public string TargetId { get; set; } = string.Empty;
+    
+    [Required]
+    public string Reason { get; set; } = string.Empty;
+    
+    public string? Description { get; set; }
+    
+    public ReportStatus Status { get; set; } = ReportStatus.Pending;
+    
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    public DateTime? ReviewedAt { get; set; }
+    
+    public string? ReviewedBy { get; set; }
+    
+    public string? ResolutionNotes { get; set; }
+    
+    // Navigation properties
+    public User? Reporter { get; set; }
+    public User? ReviewedByUser { get; set; }
 }

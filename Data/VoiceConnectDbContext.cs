@@ -14,6 +14,7 @@ public class VoiceConnectDbContext : DbContext
     public DbSet<Message> Messages { get; set; }
     public DbSet<CallRequest> CallRequests { get; set; }
     public DbSet<OtpCode> OtpCodes { get; set; }
+    public DbSet<Report> Reports { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -63,6 +64,15 @@ public class VoiceConnectDbContext : DbContext
         {
             entity.ToContainer("OtpCodes");
             entity.HasPartitionKey(e => e.Id);
+        });
+
+        // Configure Report
+        modelBuilder.Entity<Report>(entity =>
+        {
+            entity.ToContainer("Reports");
+            entity.HasPartitionKey(e => e.Id);
+            entity.Ignore(e => e.Reporter);
+            entity.Ignore(e => e.ReviewedByUser);
         });
     }
 }

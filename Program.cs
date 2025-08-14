@@ -47,6 +47,7 @@ var host = new HostBuilder()
         services.AddScoped<ITopicService, TopicService>();
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<ICallService, CallService>();
+        services.AddScoped<IModerationService, ModerationService>();
 
         // Configure GraphQL
         services
