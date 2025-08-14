@@ -13,6 +13,7 @@ public interface IUserService
     Task<List<User>> GetFavoritesAsync(string userId);
     Task<bool> AddFavoriteAsync(string userId, string favoriteUserId);
     Task<bool> RemoveFavoriteAsync(string userId, string favoriteUserId);
+    Task<List<User>> GetUsersByRoleAsync(UserRole role);
 }
 
 public class UserService : IUserService
@@ -181,6 +182,22 @@ public class UserService : IUserService
         {
             _logger.LogError(ex, $"Failed to remove favorite {favoriteUserId} for user {userId}");
             return false;
+        }
+    }
+
+    public async Task<List<User>> GetUsersByRoleAsync(UserRole role)
+    {
+        try
+        {
+            return await _context.Users
+                .Where(u => u.Role == role)
+                .OrderBy(u => u.Username)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Failed to get users by role {role}");
+            return new List<User>();
         }
     }
 }

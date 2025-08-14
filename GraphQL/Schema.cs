@@ -27,6 +27,33 @@ public class Query
     {
         return new List<User>(); // Simplified for now - would implement proper user listing
     }
+
+    // Moderation queries - Get reports
+    public async Task<List<Report>> GetReportsAsync(
+        [Service] IModerationService moderationService,
+        [Service] IUserService userService,
+        ReportStatus? status = null)
+    {
+        var reports = await moderationService.GetReportsAsync(status);
+        
+        // Populate navigation properties
+        foreach (var report in reports)
+        {
+            report.Reporter = await userService.GetUserByIdAsync(report.ReporterId);
+            if (!string.IsNullOrEmpty(report.ReviewedBy))
+            {
+                report.ReviewedByUser = await userService.GetUserByIdAsync(report.ReviewedBy);
+            }
+        }
+
+        return reports;
+    }
+
+    // Get moderators
+    public async Task<List<User>> GetModeratorsAsync([Service] IUserService userService)
+    {
+        return await userService.GetUsersByRoleAsync(UserRole.Moderator);
+    }
 }
 
 public class Mutation
@@ -150,6 +177,85 @@ public class Mutation
     {
         var callRequest = await callService.RejectCallRequestAsync(requestId, userId);
         return callRequest != null;
+    }
+
+    // Moderation mutations
+    // Create a report
+    public async Task<Report?> CreateReportAsync(
+        [Service] IModerationService moderationService,
+        [Service] IUserService userService,
+        string reporterId,
+        CreateReportInput input)
+    {
+        var report = await moderationService.CreateReportAsync(
+            reporterId,
+            input.Type,
+            input.TargetId,
+            input.Reason,
+            input.Description);
+
+        if (report != null)
+        {
+            report.Reporter = await userService.GetUserByIdAsync(reporterId);
+        }
+
+        return report;
+    }
+
+    // Assign moderator role
+    public async Task<bool> AssignModeratorAsync(
+        [Service] IModerationService moderationService,
+        string assignedBy,
+        AssignModeratorInput input)
+    {
+        return await moderationService.AssignModeratorRoleAsync(input.UserId, assignedBy);
+    }
+
+    // Ban user
+    public async Task<bool> BanUserAsync(
+        [Service] IModerationService moderationService,
+        string moderatorId,
+        BanUserInput input)
+    {
+        return await moderationService.BanUserAsync(
+            input.UserId,
+            moderatorId,
+            input.Reason,
+            input.BannedUntil);
+    }
+
+    // Unban user
+    public async Task<bool> UnbanUserAsync(
+        [Service] IModerationService moderationService,
+        string moderatorId,
+        string userId)
+    {
+        return await moderationService.UnbanUserAsync(userId, moderatorId);
+    }
+
+    // Resolve report
+    public async Task<Report?> ResolveReportAsync(
+        [Service] IModerationService moderationService,
+        [Service] IUserService userService,
+        string moderatorId,
+        ResolveReportInput input)
+    {
+        var report = await moderationService.ResolveReportAsync(
+            input.ReportId,
+            moderatorId,
+            input.Status,
+            input.ResolutionNotes);
+
+        if (report != null)
+        {
+            report.Reporter = await userService.GetUserByIdAsync(report.ReporterId);
+            if (!string.IsNullOrEmpty(report.ReviewedBy))
+            {
+                report.ReviewedByUser = await userService.GetUserByIdAsync(report.ReviewedBy);
+            }
+        }
+
+        return report;
     }
 }
 
