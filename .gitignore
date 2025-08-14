@@ -1,0 +1,41 @@
+# Build output
+bin/
+obj/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Environment files
+local.settings.json
+.env
+.env.local
+
+# Azure Functions
+.azure/
+
+# Visual Studio
+.vs/
+*.vscode/
+
+# Rider
+.idea/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Azure Storage Emulator
+__blobstorage__
+__queuestorage__
+__azurite_db*__.json
