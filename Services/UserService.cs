@@ -7,9 +7,9 @@ namespace VoiceConnect.Backend.Services;
 
 public interface IUserService
 {
-    Task<User?> RegisterAsync(string username, string phone);
+    Task<User?> RegisterAsync(string username, string email);
     Task<User?> GetUserByIdAsync(string userId);
-    Task<User?> GetUserByPhoneAsync(string phone);
+    Task<User?> GetUserByEmailAsync(string email);
     Task<List<User>> GetFavoritesAsync(string userId);
     Task<bool> AddFavoriteAsync(string userId, string favoriteUserId);
     Task<bool> RemoveFavoriteAsync(string userId, string favoriteUserId);
@@ -28,15 +28,15 @@ public class UserService : IUserService
         _authService = authService;
     }
 
-    public async Task<User?> RegisterAsync(string username, string phone)
+    public async Task<User?> RegisterAsync(string username, string email)
     {
         try
         {
             // Check if user already exists
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Phone == phone);
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (existingUser != null)
             {
-                _logger.LogWarning($"User already exists with phone {phone}");
+                _logger.LogWarning($"User already exists with email {email}");
                 return null;
             }
 
@@ -52,7 +52,7 @@ public class UserService : IUserService
             var user = new User
             {
                 Username = username,
-                Phone = phone,
+                Email = email,
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true
             };
@@ -61,14 +61,14 @@ public class UserService : IUserService
             await _context.SaveChangesAsync();
 
             // Send OTP for verification
-            await _authService.SendOtpAsync(phone);
+            await _authService.SendOtpAsync(email);
 
-            _logger.LogInformation($"User registered successfully: {username} ({phone})");
+            _logger.LogInformation($"User registered successfully: {username} ({email})");
             return user;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Failed to register user {username} with phone {phone}");
+            _logger.LogError(ex, $"Failed to register user {username} with email {email}");
             return null;
         }
     }
@@ -86,15 +86,15 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<User?> GetUserByPhoneAsync(string phone)
+    public async Task<User?> GetUserByEmailAsync(string email)
     {
         try
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Phone == phone);
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Failed to get user by phone {phone}");
+            _logger.LogError(ex, $"Failed to get user by email {email}");
             return null;
         }
     }

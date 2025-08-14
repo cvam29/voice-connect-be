@@ -6,7 +6,7 @@ This is the backend for a social voice + chat app inspired by Wakie, built with 
 - **Runtime:** .NET 8 (Isolated Process) on Azure Functions
 - **API Layer:** GraphQL (HotChocolate)
 - **Database:** Azure Cosmos DB (PostgreSQL API) / In-Memory for development
-- **Auth:** Phone OTP via Twilio + JWT tokens
+- **Auth:** Email OTP (logged to console) + JWT tokens
 - **Real-time:** Azure SignalR Service for chat & WebRTC signaling
 - **Voice Calls:** WebRTC (SDP & ICE exchanged via SignalR; STUN/TURN via Azure Communication Services)
 - **Storage:** Azure Blob Storage for profile pictures
@@ -42,7 +42,7 @@ See `/docs/schema.md` for the full schema documentation with example queries.
 - .NET 8 SDK
 - Azure Functions Core Tools v4
 - (Optional) Azure Cosmos DB Emulator for local development
-- (Optional) Twilio account for SMS OTP
+- (Optional) Email service for OTP delivery (currently OTPs are logged to console)
 
 ### Installation
 1. **Clone the repository**
@@ -80,10 +80,10 @@ See `/docs/schema.md` for the full schema documentation with example queries.
 **Register a user:**
 ```graphql
 mutation {
-  register(username: "john_doe", phone: "+1234567890") {
+  register(username: "john_doe", email: "john@example.com") {
     id
     username
-    phone
+    email
     createdAt
   }
 }
@@ -132,8 +132,9 @@ query {
 - Entity Framework migrations are not used with Cosmos DB
 
 ### Authentication
-- Phone-based OTP registration and login
+- Email-based OTP registration and login
 - JWT tokens for session management
+- OTPs are currently logged to console (no email service configured)
 - Authentication is implemented but not enforced in all GraphQL operations (simplified for MVP)
 
 ### Real-time Features
@@ -154,7 +155,6 @@ query {
 3. **Azure SignalR Service**
 4. **Azure Blob Storage** (for file uploads)
 5. **Azure Notification Hubs** (for push notifications)
-6. **Twilio Account** (for SMS OTP)
 
 ### Deployment Steps
 1. Create Azure resources using Azure Portal or ARM templates

@@ -5,8 +5,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Twilio;
-using Twilio.Rest.Api.V2010.Account;
 using VoiceConnect.Backend.Data;
 using VoiceConnect.Backend.Models;
 
@@ -14,8 +12,8 @@ namespace VoiceConnect.Backend.Services;
 
 public interface IAuthService
 {
-    Task<bool> SendOtpAsync(string phone);
-    Task<AuthPayload?> LoginAsync(string phone, string otp);
+    Task<bool> SendOtpAsync(string email);
+    Task<AuthPayload?> LoginAsync(string email, string otp);
     Task<string> GenerateJwtTokenAsync(User user);
     Task<User?> ValidateJwtTokenAsync(string token);
 }
@@ -27,9 +25,6 @@ public class AuthService : IAuthService
     private readonly string _jwtSecret;
     private readonly string _jwtIssuer;
     private readonly string _jwtAudience;
-    private readonly string _twilioAccountSid;
-    private readonly string _twilioAuthToken;
-    private readonly string _twilioPhoneNumber;
 
     public AuthService(
         VoiceConnectDbContext context,
@@ -41,14 +36,9 @@ public class AuthService : IAuthService
         _jwtSecret = configuration["JwtSecret"] ?? throw new ArgumentNullException("JwtSecret");
         _jwtIssuer = configuration["JwtIssuer"] ?? throw new ArgumentNullException("JwtIssuer");
         _jwtAudience = configuration["JwtAudience"] ?? throw new ArgumentNullException("JwtAudience");
-        _twilioAccountSid = configuration["TwilioAccountSid"] ?? throw new ArgumentNullException("TwilioAccountSid");
-        _twilioAuthToken = configuration["TwilioAuthToken"] ?? throw new ArgumentNullException("TwilioAuthToken");
-        _twilioPhoneNumber = configuration["TwilioPhoneNumber"] ?? throw new ArgumentNullException("TwilioPhoneNumber");
-        
-        TwilioClient.Init(_twilioAccountSid, _twilioAuthToken);
     }
 
-    public async Task<bool> SendOtpAsync(string phone)
+    public async Task<bool> SendOtpAsync(string email)
     {
         try
         {
@@ -58,7 +48,7 @@ public class AuthService : IAuthService
             // Store OTP in database
             var otpCode = new OtpCode
             {
-                Phone = phone,
+                Email = email,
                 Code = otp,
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(5)
@@ -67,36 +57,31 @@ public class AuthService : IAuthService
             _context.OtpCodes.Add(otpCode);
             await _context.SaveChangesAsync();
 
-            // Send SMS via Twilio
-            var message = await MessageResource.CreateAsync(
-                body: $"Your Voice Connect verification code is: {otp}",
-                from: new Twilio.Types.PhoneNumber(_twilioPhoneNumber),
-                to: new Twilio.Types.PhoneNumber(phone)
-            );
+            // Log OTP instead of sending via email (no email service configured)
+            _logger.LogInformation($"OTP for {email}: {otp} (valid until {otpCode.ExpiresAt:yyyy-MM-dd HH:mm:ss} UTC)");
 
-            _logger.LogInformation($"OTP sent to {phone}. SID: {message.Sid}");
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Failed to send OTP to {phone}");
+            _logger.LogError(ex, $"Failed to generate OTP for {email}");
             return false;
         }
     }
 
-    public async Task<AuthPayload?> LoginAsync(string phone, string otp)
+    public async Task<AuthPayload?> LoginAsync(string email, string otp)
     {
         try
         {
             // Validate OTP
             var otpCode = await _context.OtpCodes
-                .Where(o => o.Phone == phone && o.Code == otp && !o.IsUsed && o.ExpiresAt > DateTime.UtcNow)
+                .Where(o => o.Email == email && o.Code == otp && !o.IsUsed && o.ExpiresAt > DateTime.UtcNow)
                 .OrderByDescending(o => o.CreatedAt)
                 .FirstOrDefaultAsync();
 
             if (otpCode == null)
             {
-                _logger.LogWarning($"Invalid OTP for phone {phone}");
+                _logger.LogWarning($"Invalid OTP for email {email}");
                 return null;
             }
 
@@ -104,11 +89,11 @@ public class AuthService : IAuthService
             otpCode.IsUsed = true;
             await _context.SaveChangesAsync();
 
-            // Find or create user
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Phone == phone);
+            // Find user
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
             {
-                _logger.LogWarning($"User not found for phone {phone} during login");
+                _logger.LogWarning($"User not found for email {email} during login");
                 return null;
             }
 
@@ -127,7 +112,7 @@ public class AuthService : IAuthService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Login failed for phone {phone}");
+            _logger.LogError(ex, $"Login failed for email {email}");
             return null;
         }
     }
@@ -141,7 +126,7 @@ public class AuthService : IAuthService
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(ClaimTypes.Name, user.Username),
-            new Claim("phone", user.Phone),
+            new Claim(ClaimTypes.Email, user.Email),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
         };

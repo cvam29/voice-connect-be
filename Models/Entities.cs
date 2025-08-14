@@ -14,7 +14,8 @@ public class User
     public string? ProfilePictureUrl { get; set; }
     
     [Required]
-    public string Phone { get; set; } = string.Empty;
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
@@ -107,7 +108,8 @@ public class OtpCode
     public string Id { get; set; } = Guid.NewGuid().ToString();
     
     [Required]
-    public string Phone { get; set; } = string.Empty;
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
     
     [Required]
     public string Code { get; set; } = string.Empty;

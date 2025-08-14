@@ -35,18 +35,18 @@ public class Mutation
     public async Task<User?> RegisterAsync(
         [Service] IUserService userService,
         string username,
-        string phone)
+        string email)
     {
-        return await userService.RegisterAsync(username, phone);
+        return await userService.RegisterAsync(username, email);
     }
 
-    // Login with phone and OTP
+    // Login with email and OTP
     public async Task<AuthPayload?> LoginAsync(
         [Service] IAuthService authService,
-        string phone,
+        string email,
         string otp)
     {
-        return await authService.LoginAsync(phone, otp);
+        return await authService.LoginAsync(email, otp);
     }
 
     // Create a new topic (simplified without auth for now)

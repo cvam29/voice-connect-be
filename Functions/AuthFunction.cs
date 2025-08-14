@@ -28,14 +28,14 @@ public class AuthFunction
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var sendOtpRequest = System.Text.Json.JsonSerializer.Deserialize<SendOtpRequest>(requestBody);
 
-            if (sendOtpRequest == null || string.IsNullOrEmpty(sendOtpRequest.Phone))
+            if (sendOtpRequest == null || string.IsNullOrEmpty(sendOtpRequest.Email))
             {
                 var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
-                await badResponse.WriteStringAsync("{\"message\":\"Phone number is required\"}");
+                await badResponse.WriteStringAsync("{\"message\":\"Email address is required\"}");
                 return badResponse;
             }
 
-            var success = await _authService.SendOtpAsync(sendOtpRequest.Phone);
+            var success = await _authService.SendOtpAsync(sendOtpRequest.Email);
             
             if (success)
             {
@@ -62,5 +62,5 @@ public class AuthFunction
 
 public class SendOtpRequest
 {
-    public string Phone { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
 }
