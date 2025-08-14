@@ -40,30 +40,30 @@ query GetUsers {
 ## Mutation Operations
 
 ### register
-Register a new user with username and phone number.
+Register a new user with username and email address.
 
 ```graphql
-mutation Register($username: String!, $phone: String!) {
-  register(username: $username, phone: $phone) {
+mutation Register($username: String!, $email: String!) {
+  register(username: $username, email: $email) {
     id
     username
-    phone
+    email
     createdAt
   }
 }
 ```
 
 ### login
-Login with phone number and OTP code.
+Login with email address and OTP code.
 
 ```graphql
-mutation Login($phone: String!, $otp: String!) {
-  login(phone: $phone, otp: $otp) {
+mutation Login($email: String!, $otp: String!) {
+  login(email: $email, otp: $otp) {
     token
     user {
       id
       username
-      phone
+      email
       bio
       profilePictureUrl
     }
@@ -196,7 +196,7 @@ type User {
   username: String!
   bio: String
   profilePictureUrl: String
-  phone: String!
+  email: String!
   createdAt: DateTime!
   lastLoginAt: DateTime
   isActive: Boolean!

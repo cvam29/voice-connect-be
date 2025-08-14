@@ -9,12 +9,12 @@ public class AuthPayload
 public class RegisterInput
 {
     public string Username { get; set; } = string.Empty;
-    public string Phone { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
 }
 
 public class LoginInput
 {
-    public string Phone { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
     public string Otp { get; set; } = string.Empty;
 }
 
